@@ -3,8 +3,8 @@
 A service-manual style reference to the software in the 1997 Viper JTEC
 powertrain control module (calibration 04848703AF). Each section describes one
 system: what it does, the routines that run it, the instructions and readable
-C behind it, and the calibration values it uses. Group 9 covers all 268
-calibration structures in the flash image, with an interactive map of the
+C behind it, and the calibration values it uses. Group 9 covers every
+calibration structure in the flash image, with an interactive map of the
 image. Group 10 has the connector pinouts, the job schedule and an index of
 every routine.
 
