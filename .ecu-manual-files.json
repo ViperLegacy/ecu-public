@@ -47,6 +47,8 @@
   "assets/manual/fuel-pulse-width.png",
   "assets/manual/fuel-system-monitor.png",
   "assets/manual/iac-motor-output.png",
+  "assets/manual/iac-pintle-inputs.png",
+  "assets/manual/idle-speed-inputs.png",
   "assets/manual/ignition-coil-packs.png",
   "assets/manual/input-high-low-limits.png",
   "assets/manual/limp-in-mode.png",
@@ -69,6 +71,7 @@
   "assets/manual/v10-firing-order.png",
   "assets/manual/vss-circuit.png",
   "assets/manual/vss-location.png",
+  "assets/manual/warmup-cycle-erase.png",
   "assets/manual/zero-rpm-mode.png",
   "build-info.json",
   "index.html"
