@@ -1,0 +1,365 @@
+{
+ "atlasEntries": 268,
+ "crops": {
+  "ac-operation": {
+   "page": 487,
+   "printed": "8W-42-6",
+   "sha256": "a8bb4342a6893159b48434517e77abba861c120b679b2db9a54455d5a93e3021"
+  },
+  "asd-relay-circuit": {
+   "page": 450,
+   "printed": "8W-30-21",
+   "sha256": "379ac9a7ceadeffe8cdaac8dedd949698bdf944d807bdb2cb9e3395a65368838"
+  },
+  "asd-relay-output": {
+   "page": 743,
+   "printed": "14-26",
+   "sha256": "3e402c412c0a4f07fd0bfb77b998882ccde5bcd347df71824b808ba6682e5a43"
+  },
+  "asd-relay-pcm-output": {
+   "page": 743,
+   "printed": "14-26",
+   "sha256": "1923a68083e87e91ddd9a54eea40efcac4d3aa4846df5a49135d956d886d7f95"
+  },
+  "blink-code-chart": {
+   "page": 926,
+   "printed": "25-3",
+   "sha256": "4fbf274f41ac37d398d11bfadda111cf6037a474b2419a53265f65dbe4b40785"
+  },
+  "blink-start-codes-12-55": {
+   "page": 926,
+   "printed": "25-3",
+   "sha256": "2635c4e7be86b70ba18dc8e8ba445d7259f5ce2d6365544741824ed0ccfa96ba"
+  },
+  "blink-start-procedure": {
+   "page": 925,
+   "printed": "25-2",
+   "sha256": "751d4a671706c2a4460411d9dde097e125c539cc9b0d1fde7152250cea320785"
+  },
+  "blink-start-two-ways": {
+   "page": 925,
+   "printed": "25-2",
+   "sha256": "6e1db7744457b95d2c0a6560c9604e0f3d22ebd2ddf5c111a01c4192224f9308"
+  },
+  "closed-loop-modes": {
+   "page": 736,
+   "printed": "14-19",
+   "sha256": "35bb9dab8c6fba65a318994af4aa5e96dcebbad45be522c7df5a7dd2c68ee251"
+  },
+  "coil-pack-cylinders": {
+   "page": 745,
+   "printed": "14-28",
+   "sha256": "3062f177bcd95479998998bf6c0bed589ba5c6667ca034d8a95043852f6a82d3"
+  },
+  "coil-pack-ground-path": {
+   "page": 745,
+   "printed": "14-28",
+   "sha256": "89a491a2b9a5d74b22f035c32014fa6953674694dbcff5a11fdffc7a16800328"
+  },
+  "crank-timing-slots": {
+   "page": 740,
+   "printed": "14-23",
+   "sha256": "d5d9ce32fea0a45a7a6ff016f07118eaf590b125f4b22e46277b87ffc8c81285"
+  },
+  "cyl-numbering-firing-order": {
+   "page": 655,
+   "printed": "9-10",
+   "sha256": "f32a0747e925062d99ced698b6876d7d2d9b0d9911c24e6e8dfb7160f87dc181"
+  },
+  "decel-fuel-shutoff": {
+   "page": 738,
+   "printed": "14-21",
+   "sha256": "d65bc519f2c245b35075889f6a78c7536eeec2e3b6227502687d6d89a90d0c2f"
+  },
+  "diag-overview-dtc-chart": {
+   "page": 926,
+   "printed": "25-3",
+   "sha256": "bd088f15c78502d8ea67f48b924e7b90a82bfeba1af39e70a3ed5c607eb35f4c"
+  },
+  "diag-overview-scan-tool": {
+   "page": 925,
+   "printed": "25-2",
+   "sha256": "e65190c8b575d3b9eade0146ee5ce8d47cc8199d3d734dae291998cb4ef8b01d"
+  },
+  "diag-overview-system": {
+   "page": 924,
+   "printed": "25-1",
+   "sha256": "38156029217d90ef19ec1b5a84a5b1a85dfb24f01cf57763cc0f9dfd084d97f6"
+  },
+  "dtc-ac-purge": {
+   "page": 926,
+   "printed": "25-3",
+   "sha256": "c8a0c0270c7da3a0659587aa479c4a4c8f993d79672610eb9006ffed79102b26"
+  },
+  "dtc-asd-field": {
+   "page": 926,
+   "printed": "25-3",
+   "sha256": "faf57b4da196ad29c585d93776b2d56655f3edb6846e80dca7b4452b55a752f4"
+  },
+  "dtc-battery-temp": {
+   "page": 929,
+   "printed": "25-6",
+   "sha256": "1b1ffbe5397ebb73f30c4ad24bcb180e115b5b2cb306726d48316959ff64c6e0"
+  },
+  "dtc-charging": {
+   "page": 926,
+   "printed": "25-3",
+   "sha256": "cd5988adf40071609a4cd48a56d91f27a9e805c9db8793997e69220336fc18f1"
+  },
+  "dtc-fan-pump": {
+   "page": 928,
+   "printed": "25-5",
+   "sha256": "1b4b25ed76411fa11b6fda3cd10ce86b0709d8f360bbc174782059de2331e229"
+  },
+  "dtc-fan-relays": {
+   "page": 928,
+   "printed": "25-5",
+   "sha256": "3410efadfb8ecf960329ca17800a1612733b7af3f70581e3e11ca2ff9c7793ba"
+  },
+  "dtc-fuel-system": {
+   "page": 928,
+   "printed": "25-5",
+   "sha256": "a6e382df34fcc1d71d9cfcaf588603c12a155e020222269e858e11bdd845a5c8"
+  },
+  "dtc-iac": {
+   "page": 926,
+   "printed": "25-3",
+   "sha256": "49ae6d135b94791508176d20cd300d126466cc24c5cfcddae103cb237fed3aed"
+  },
+  "dtc-ignition-coil-123": {
+   "page": 927,
+   "printed": "25-4",
+   "sha256": "08d33ff07521299cb2a958a865c2a21e672076cdd94dbc76f08bd31e6d8cd2ea"
+  },
+  "dtc-ignition-coil-45": {
+   "page": 928,
+   "printed": "25-5",
+   "sha256": "fd96886917f8e1abb78334eee416b8395af2411d5d0573f030567a059db81fee"
+  },
+  "dtc-no-cam-signal": {
+   "page": 926,
+   "printed": "25-3",
+   "sha256": "f325e1c4cc0482f539f85149babe9f78665a5b2b89db79490e34f4351eea384f"
+  },
+  "dtc-no-crank-reference": {
+   "page": 927,
+   "printed": "25-4",
+   "sha256": "a920e233139d4827aecbe04719ac4517e858a7f85e639e2d31c9781440bc9465"
+  },
+  "dtc-skip-shift": {
+   "page": 927,
+   "printed": "25-4",
+   "sha256": "ef4b5b2589a133fa3c9d4d18286e83b8b4f4db05a953160d07ff9bb7ba2265d3"
+  },
+  "dtc-skip-shift-table": {
+   "page": 927,
+   "printed": "25-4",
+   "sha256": "c3d0888e2ffacb1ec9127aec112bba9a9c1ca54681ac0de02a299a54391ddc2e"
+  },
+  "dtc-vss": {
+   "page": 927,
+   "printed": "25-4",
+   "sha256": "dcc42d7a07b517231c28af0ca5fda6cb31c7506e35c2e8693d6a67edf0185183"
+  },
+  "engine-firing-order": {
+   "page": 689,
+   "printed": "9-44",
+   "sha256": "e8db195104ebe6ef38182fa15106a83470e1f0e31bfa14078cb57c23a083f20a"
+  },
+  "engine-start-up-mode": {
+   "page": 736,
+   "printed": "14-19",
+   "sha256": "223150e1d0bd86fd76e7c334c351d4e539cec132a69084027efa308005789695"
+  },
+  "engine-start-up-mode-cont": {
+   "page": 737,
+   "printed": "14-20",
+   "sha256": "1934d342adeb3df4c786acf6759f7358d7902a211a79f42091274ad539e31bfa"
+  },
+  "evap-purge-solenoid": {
+   "page": 744,
+   "printed": "14-27",
+   "sha256": "951d44e850dbda19c5556781e07bd2f77be67ca61b49170ad0a0e7f6096a51cc"
+  },
+  "fan-control-cooling": {
+   "page": 238,
+   "printed": "7-11",
+   "sha256": "c1e2e3bc7d2cc77bdb68756cf85dd3c30c20db84614dfc46c87779d41443e2e2"
+  },
+  "fan-relays-output": {
+   "page": 746,
+   "printed": "14-29",
+   "sha256": "49ad3464c50114b58f16b3a8caa14e1d99d2a208c0d57677f3330833a8a56b09"
+  },
+  "faults-mil-reset": {
+   "page": 925,
+   "printed": "25-2",
+   "sha256": "e87ae57cc72f3b95772dbf8bef06ff6a3035a4471420065bd4ad047aa263278b"
+  },
+  "fuel-injectors": {
+   "page": 745,
+   "printed": "14-28",
+   "sha256": "ad0ee9a34735edc4e7f375b677207dc0b39209e19e5430c91656f441ff6d6c41"
+  },
+  "fuel-pulse-width": {
+   "page": 736,
+   "printed": "14-19",
+   "sha256": "9b753a7636f5513ce6f542c91781d5149a212836842628c109b3869dddbe5151"
+  },
+  "fuel-system-monitor": {
+   "page": 931,
+   "printed": "25-8",
+   "sha256": "73fc27be913e78e8b3c7ebeae4d7e78d37d56765f3e9afafd39d380687739fa6"
+  },
+  "iac-motor-output": {
+   "page": 744,
+   "printed": "14-27",
+   "sha256": "3a6615e156ce45c68ac974e8e5b9c63387a030dd404fa5932f82c866e2488e9d"
+  },
+  "ignition-coil-packs": {
+   "page": 745,
+   "printed": "14-28",
+   "sha256": "a7f57ca2ea27d91ff4956d87035b9dd7a929b38c98513d3f2093c2285c0af715"
+  },
+  "input-high-low-limits": {
+   "page": 933,
+   "printed": "25-10",
+   "sha256": "306adc72dc243484804912a6658c779badfc842f68d27f6d685f7738e3becd13"
+  },
+  "limp-in-mode": {
+   "page": 745,
+   "printed": "14-28",
+   "sha256": "7a8ccf2c4d542928275f012973da7bafe1f50272dadb7bdbfec1422c9d667ee7"
+  },
+  "pcm-about-location": {
+   "page": 754,
+   "printed": "14-37",
+   "sha256": "2d171b5aa04c414f0a0844b59377574b6266223ea54f2e043a80e76b00013c24"
+  },
+  "pcm-description": {
+   "page": 738,
+   "printed": "14-21",
+   "sha256": "e0233d5dc3ecce50dfb7dd84b0a9f92464cc222168aac8451e011ed5e206d80d"
+  },
+  "pcm-microprocessor": {
+   "page": 738,
+   "printed": "14-21",
+   "sha256": "c3269498c1811bec43a423e36bab6265201a29cab7c452d6a0c225537bd0660c"
+  },
+  "pcm-modes-of-operation": {
+   "page": 736,
+   "printed": "14-19",
+   "sha256": "cca997af17d3d6f6045474075579edc88baa052e8c95117e57127c7eb7a61418"
+  },
+  "pcm-outputs-list": {
+   "page": 739,
+   "printed": "14-22",
+   "sha256": "2102eb8e397d4aa7af4f290baa1d77f08e38c534a8e48b834bc93463e7abd1af"
+  },
+  "recovery-dtc-iat": {
+   "page": 927,
+   "printed": "25-4",
+   "sha256": "4aaa71fe8afd7809fbbd98c56713d969924cc8054f2d425bf3c425c934fca8e5"
+  },
+  "recovery-dtc-map": {
+   "page": 927,
+   "printed": "25-4",
+   "sha256": "fe4506ed9a2e9a7ae0dc5b1dcb36970b832221f472a66c54e2ee3f0eb3337260"
+  },
+  "recovery-dtc-map-5v": {
+   "page": 929,
+   "printed": "25-6",
+   "sha256": "ed26ea0be42a41b1c0bac57b9f1dbd7d5aa3f1841a8e6cb9c378642d80196d26"
+  },
+  "recovery-dtc-tps-ect": {
+   "page": 926,
+   "printed": "25-3",
+   "sha256": "9c9b45876127a692c51dcc7c38f7c012fe2a66d7ec4f80b051208271bec906dd"
+  },
+  "reverse-solenoid-circuit": {
+   "page": 454,
+   "printed": "8W-30-25",
+   "sha256": "de653ca03cf0c57b8ca549471d56e7d6a4f183614ac2b4f683835f0e35fb7bcd"
+  },
+  "sci-receive-input": {
+   "page": 742,
+   "printed": "14-25",
+   "sha256": "aacdb8b0a1541b412148ddb8801481ed5005476e58ba57319f6bd51a1fbcbe40"
+  },
+  "shift-lamp-output": {
+   "page": 746,
+   "printed": "14-29",
+   "sha256": "1aa764aa888ed6aa97b2dc138eac330897e903ef1c47c68ba5734ee8f518b066"
+  },
+  "skip-shift-solenoid-output": {
+   "page": 746,
+   "printed": "14-29",
+   "sha256": "04d90b1541d60352e8fcf5b4eec872b42d1ebeea2074604d2efd5c7ecad0ea06"
+  },
+  "spark-advance-inputs": {
+   "page": 275,
+   "printed": "8D-2",
+   "sha256": "400625be5ddaccd44c0067c22f41128eac691c2fcd136f81e08c3bae0deebdba"
+  },
+  "startup-key-on-mode": {
+   "page": 736,
+   "printed": "14-19",
+   "sha256": "4c73926e02a82301ae0eace09c3f1d992136242807c57514ce046339e7cb491e"
+  },
+  "upstream-o2-wiring": {
+   "page": 442,
+   "printed": "8W-30-13",
+   "sha256": "3cbb642eeb8ce75bbc76d4ab0d2341afbc7e47f195df94ddc6683e0850845852"
+  },
+  "v10-firing-order": {
+   "page": 655,
+   "printed": "9-10",
+   "sha256": "a8456fe7e45c449e025ae5fcb9a43b9e203322dfb5fc83bac5ce37154163f2eb"
+  },
+  "vss-circuit": {
+   "page": 441,
+   "printed": "8W-30-12",
+   "sha256": "96522ca84c0ae13d19400ebc84f857ba7915d52dddd77207a2d9c6b774a77862"
+  },
+  "vss-location": {
+   "page": 810,
+   "printed": "21-3",
+   "sha256": "a5d34332e3d303892e1245ee2f1b116bb1485b95d2e2cb682968532ec3797fd8"
+  },
+  "zero-rpm-mode": {
+   "page": 736,
+   "printed": "14-19",
+   "sha256": "4c73926e02a82301ae0eace09c3f1d992136242807c57514ce046339e7cb491e"
+  }
+ },
+ "missing": [],
+ "romSha256": "82c2832024feae3d5427df4baddbaedcc80cdd0958e3e33155f4b78e1c21c2c0",
+ "routinesReferenced": 228,
+ "sections": 36,
+ "sources": {
+  "sections/0-1-about.html": "5d069f1de0cfd94f0bf354ad57f12d1413c3ec533283beca9eb62c959632af63",
+  "sections/0-2-identification.html": "62138c22ff63eaa28f97439713efa7392e36183700224cd4f0cca36e7d072e47",
+  "sections/1-1-overview.html": "89e34438b41d8f5fa14cd291abc15fd56422b25655486c70a785c09eb3918d07",
+  "sections/1-2-startup.html": "7dbfbb1b38761a16d7875ecb54bbe8d5f56749e150e7c61d6b72d328ef6edb49",
+  "sections/1-3-scheduling.html": "a30ba1f36548ea7f7f7bdaa09ecdd76d7eeff617adbd2e55955d57d94cedac83",
+  "sections/1-4-interrupts.html": "72f2ee003d4964fd08cb1716e9927492d480a11b0ad66ca60558fa83208601fd",
+  "sections/1-5-jobs.html": "5f6c1ee883d032db6e899ca6afd0a3bf6c8f0955a47e3c30a0bbe3f0b6df622e",
+  "sections/1-6-support.html": "542bac7f4773b40d3c680cc0241bac585166cf084f32dbe1c8c391d2a10a432d",
+  "sections/2-1-engine.html": "01f9f9c9aca2169033ca57c1f237865fd26dd2acd19c533073b2221bef094e9e",
+  "sections/2-2-event-loss.html": "f64b2981513ac33e22c04457bea3336552df6b8d19d2fa104660c826e10647fb",
+  "sections/3-1-fuel.html": "7bd88ef3006dc82dfff1693f438d782f8f5b66da9bda46b2bbcc445db36a8e35",
+  "sections/3-2-feedback.html": "b7335e1018c0f2d4fff010f5104ba218e723cd6b87a4a6a4e846085a7fc1d6ae",
+  "sections/4-1-spark.html": "d5cf3d0329ccfd9596902f0c448c2e49c3916d8e0282f5e2fc246b39484a195d",
+  "sections/5-1-outputs.html": "32f70d3e12e6410319e1005dcd9b19b24743f54008f999f3b75ee0608fc26b18",
+  "sections/5-2-accessories.html": "6379d166f4a110e5d6e825e7393681ff93f76ef5a4ff592bf3fbfa8fda777b06",
+  "sections/6-1-speed-input.html": "43140fa577969642640ce41336bb7648d9d87b26a438752a74ed9563d65265b2",
+  "sections/6-2-transmission.html": "861a7c4f4b667e6ed9c837dbeb8af8f4c917add284ab9e944809881d8f3ad406",
+  "sections/6-3-reverse.html": "c3519796cfa04dfc2043e553d5307f89ecc7f1ca3dea5d354590d1dda6f44284",
+  "sections/7-1-substitute-values.html": "7981d49ca9db605bd0952ff19725328552db11bcefe42358d84e377548902733",
+  "sections/7-2-sensor-recovery.html": "b2cd93316fb0c6f851815b38e20ca1c4ccdbaa2273bc076cd0d65a9ba0c1fe2a",
+  "sections/8-1-diagnostics.html": "c7e59162a5fb824e254cf2f52ac5906e9cc61b5264e8a91a34bcb52f5fa1a82c",
+  "sections/8-2-faults.html": "00c3ccf068e9ec2c19f090c12381fbad73a7dabef63d92a3f72ea3f32a99b83b",
+  "sections/8-3-blink.html": "efa608641fc73c791508cd7afc5c03f68dea5263165cae961ae1c913c7c83d6e",
+  "sections/8-4-blink-start.html": "dcb3216d5b811fa1eda4f6d4d85924de0e18be3f35903a52d622852ceb164921"
+ }
+}
