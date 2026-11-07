@@ -1,6 +1,7 @@
 {
  "files": [
   ".nojekyll",
+  "README.md",
   "assets/manual.css",
   "assets/manual.js",
   "assets/manual/ac-operation.png",
