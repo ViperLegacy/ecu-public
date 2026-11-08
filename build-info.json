@@ -370,7 +370,7 @@
  "missing": [],
  "romSha256": "82c2832024feae3d5427df4baddbaedcc80cdd0958e3e33155f4b78e1c21c2c0",
  "routinesReferenced": 295,
- "sections": 43,
+ "sections": 44,
  "sources": {
   "sections/0-1-about.html": "5d069f1de0cfd94f0bf354ad57f12d1413c3ec533283beca9eb62c959632af63",
   "sections/0-2-identification.html": "b18d310a9935b1f0d876deb42446aae299cfd73dfadbbea9a9233468dca3eb25",

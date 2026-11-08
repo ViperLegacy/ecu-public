@@ -141,6 +141,7 @@
     $$('table.sortable', page).forEach(sortable);
     $$('input.filter', page).forEach(filter);
     $$('[data-widget="flash-map"]', page).forEach(flashMap);
+    $$('[data-widget="tuning"]', page).forEach(tuning);
   }
 
   function heat(table) {
@@ -257,6 +258,286 @@
       if (b) { pick(+b.getAttribute('data-b')); }
     });
     pick(sel);
+  }
+
+  /* ---------- tuning workbench (9-10): edits stay in this browser; the image never leaves it */
+  function tuning(host) {
+    var T = D.widgets.tuning, NR = T.rpm.length, NC = T.kpa.length;
+    var saved = store.get('tune') || {};
+    var st = { maps: saved.maps || {}, words: saved.words || {}, keepSum: saved.keepSum !== false, tab: saved.tab || 'fuel' };
+    T.maps.forEach(function (m) { if (!st.maps[m.key]) { st.maps[m.key] = {}; } });
+    if (!T.maps.some(function (m) { return m.key === st.tab; })) { st.tab = T.maps[0].key; }
+    var image = null, imageSum = null;
+    var base = {};                      // map key -> flat baseline values (reference, or the loaded image)
+    function resetBase() {
+      T.maps.forEach(function (m) { base[m.key] = [].concat.apply([], m.cells); });
+      T.words.forEach(function (w) { base['w' + w.addr] = w.raw; });
+    }
+    resetBase();
+    var sel = {}, anchor = null, dragging = false;
+    function save() { store.set('tune', st); }
+    function mapBy(k) { return T.maps.filter(function (m) { return m.key === k; })[0]; }
+    function val(m, i) { var e = st.maps[m.key]; return Object.prototype.hasOwnProperty.call(e, i) ? e[i] : base[m.key][i]; }
+    function setVal(m, i, v) {
+      v = Math.max(m.min, Math.min(m.max, Math.round(v)));
+      if (v === base[m.key][i]) { delete st.maps[m.key][i]; } else { st.maps[m.key][i] = v; }
+    }
+    function shown(m, v) { return m.key === 'spark' ? (v / 2).toFixed(1).replace('-', '−') : String(v); }
+    function rpm(i) { return Math.round(T.rpm[i]); }
+    function encode(m, v) {
+      if (m.width === 2) { return [(v >> 8) & 0xFF, v & 0xFF]; }
+      return [v & 0xFF];
+    }
+    function decode(bytes, a, m) {
+      var v = m.width === 2 ? (bytes[a] << 8) | bytes[a + 1] : bytes[a];
+      return m.signed && v >= 0x80 ? v - 0x100 : v;
+    }
+    function sum16(b) { var s = 0; for (var i = 0; i < b.length; i++) { s = (s + b[i]) & 0xFFFF; } return s; }
+    function h(n, w) { return ('00000' + n.toString(16).toUpperCase()).slice(-(w || 6)); }
+
+    host.innerHTML =
+      '<div class="tune">' +
+      '<div class="tune-tabs" role="tablist">' + T.maps.map(function (m) {
+        return '<button type="button" role="tab" data-tab="' + m.key + '">' + esc(m.title.toUpperCase()) + '<small></small></button>';
+      }).join('') + '</div>' +
+      '<div class="tune-main"><div class="scroll"><table class="tune-grid"></table></div>' +
+      '<p class="readout" aria-live="polite"></p>' +
+      '<div class="tune-tools">' +
+      '<span class="tune-group"><span class="k">SELECTION</span><span class="tune-selinfo"></span>' +
+      '<button type="button" data-q="all">All</button><button type="button" data-q="none">None</button></span>' +
+      '<span class="tune-group"><label class="tune-op"><span class="op-a"></span><input type="number" class="in-a" step="any"></label><button type="button" data-op="a">APPLY</button></span>' +
+      '<span class="tune-group"><label class="tune-op"><span class="op-b"></span><input type="number" class="in-b" step="any"></label><button type="button" data-op="b">APPLY</button></span>' +
+      '<span class="tune-group"><button type="button" data-op="revert">Revert</button><button type="button" data-op="revert-map">Revert map</button></span>' +
+      '</div></div>' +
+      '<div class="tune-panels">' +
+      '<section><span class="k">ENGINE SPEED LIMIT</span>' + T.words.map(function (w) {
+        return '<label class="tune-op"><span>' + esc(w.title) + ' <small class="mono">' + h(w.addr) + ' · stock ' + (w.raw / 8) + ' rpm</small></span>' +
+          '<input type="number" min="0" max="8191" step="1" data-word="' + w.addr + '"> <i>rpm</i></label>';
+      }).join('') + '</section>' +
+      '<section><span class="k">IMAGE</span>' +
+      '<label class="tune-file"><span>Load PCM image (' + (T.size / 1024) + ' KiB)</span><input type="file" accept=".bin,.ori,.rom,application/octet-stream"></label>' +
+      '<p class="tune-status" aria-live="polite"></p>' +
+      '<label class="tune-check"><input type="checkbox" class="keep-sum"> Keep the image sum</label>' +
+      '<div class="tune-quick"><button type="button" data-dl="image">DOWNLOAD IMAGE</button><button type="button" data-dl="csv">DOWNLOAD CHANGE LIST</button>' +
+      '<button type="button" data-dl="clear">Revert all</button></div>' +
+      '<p class="tune-summary"></p></section></div></div>';
+
+    var grid = $('.tune-grid', host), readout = $('.readout', host), status = $('.tune-status', host);
+    var inA = $('.in-a', host), inB = $('.in-b', host);
+    readout.textContent = 'Drag across cells, or select a row or column heading, then apply a change.';
+    $('.keep-sum', host).checked = st.keepSum;
+
+    function drawGrid() {
+      var m = mapBy(st.tab), vals = [], i, r, c;
+      for (i = 0; i < NR * NC; i++) { vals.push(val(m, i)); }
+      var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+      var out = '<thead><tr><th><button type="button" data-q="all" title="Select all">rpm \\ kPa</button></th>';
+      for (c = 0; c < NC; c++) { out += '<th><button type="button" data-col="' + c + '">' + T.kpa[c] + '</button></th>'; }
+      out += '</tr></thead><tbody>';
+      for (r = 0; r < NR; r++) {
+        out += '<tr><th><button type="button" data-row="' + r + '">' + rpm(r) + '</button></th>';
+        for (c = 0; c < NC; c++) {
+          i = r * NC + c;
+          var v = vals[i], heat = (v - lo) / (hi - lo || 1), mod = Object.prototype.hasOwnProperty.call(st.maps[m.key], i);
+          out += '<td data-i="' + i + '" class="' + (mod ? 'mod ' : '') + (sel[i] ? 'sel ' : '') + (heat > 0.62 ? 'dark' : '') +
+            '" style="--h:' + heat.toFixed(3) + '">' + shown(m, v) + '</td>';
+        }
+        out += '</tr>';
+      }
+      grid.innerHTML = out + '</tbody>';
+      $$('.tune-tabs button', host).forEach(function (b) {
+        var k = b.getAttribute('data-tab'), n = Object.keys(st.maps[k]).length;
+        b.setAttribute('aria-selected', String(k === st.tab));
+        $('small', b).textContent = n ? ' · ' + n + ' changed' : '';
+      });
+      var spark = m.key === 'spark';
+      $('.op-a', host).textContent = spark ? 'Add °' : 'Scale %';
+      $('.op-b', host).textContent = spark ? 'Set °' : 'Set';
+      inA.step = '0.5'; inB.step = spark ? '0.5' : '1';
+      selInfo();
+      summary();
+    }
+    function selInfo() {
+      var n = Object.keys(sel).length;
+      $('.tune-selinfo', host).textContent = n ? n + ' cell' + (n === 1 ? '' : 's') : 'none';
+    }
+    function say(i) {
+      var m = mapBy(st.tab), r = Math.floor(i / NC), c = i % NC, b = base[m.key][i], v = val(m, i);
+      var delta = v === b ? 'stock' : (m.key === 'spark' ? ((v - b) / 2 > 0 ? '+' : '') + ((v - b) / 2).toFixed(1) + '°'
+        : (b ? ((v - b) * 100 / b > 0 ? '+' : '') + ((v - b) * 100 / b).toFixed(1) + ' %' : 'from 0'));
+      readout.textContent = rpm(r) + ' rpm · ' + T.kpa[c] + ' kPa · stock ' + shown(m, b) + ' · now ' + shown(m, v) + ' (' + delta + ') · ROM ' +
+        m.starts.map(function (s) { return h(s + i * m.width); }).join(', ');
+    }
+    function selectRect(a, b) {
+      sel = {};
+      var r0 = Math.min(Math.floor(a / NC), Math.floor(b / NC)), r1 = Math.max(Math.floor(a / NC), Math.floor(b / NC));
+      var c0 = Math.min(a % NC, b % NC), c1 = Math.max(a % NC, b % NC);
+      for (var r = r0; r <= r1; r++) { for (var c = c0; c <= c1; c++) { sel[r * NC + c] = true; } }
+      $$('td', grid).forEach(function (td) { td.classList.toggle('sel', !!sel[+td.getAttribute('data-i')]); });
+      selInfo();
+    }
+    grid.addEventListener('mousedown', function (e) {
+      var td = e.target.closest('td');
+      if (!td) { return; }
+      e.preventDefault();
+      var i = +td.getAttribute('data-i');
+      if (e.shiftKey && anchor !== null) { selectRect(anchor, i); } else { anchor = i; selectRect(i, i); }
+      dragging = true; say(i);
+    });
+    grid.addEventListener('mouseover', function (e) {
+      var td = e.target.closest('td');
+      if (!td) { return; }
+      var i = +td.getAttribute('data-i');
+      if (dragging && anchor !== null) { selectRect(anchor, i); }
+      say(i);
+    });
+    document.addEventListener('mouseup', function () { dragging = false; });
+    grid.addEventListener('touchstart', function (e) {
+      var td = e.target.closest('td');
+      if (td) { var i = +td.getAttribute('data-i'); if (sel[i] && Object.keys(sel).length === 1) { delete sel[i]; } else { sel[i] = true; } td.classList.toggle('sel', !!sel[i]); selInfo(); say(i); e.preventDefault(); }
+    }, { passive: false });
+    function quick(q) {
+      var i;
+      if (q === 'none') { sel = {}; }
+      if (q === 'all') { sel = {}; for (i = 0; i < NR * NC; i++) { sel[i] = true; } }
+      drawGrid();
+    }
+    host.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) { return; }
+      var i, k = Object.keys(sel).map(Number), m = mapBy(st.tab);
+      if (b.hasAttribute('data-tab')) { st.tab = b.getAttribute('data-tab'); save(); drawGrid(); return; }
+      if (b.hasAttribute('data-q')) { quick(b.getAttribute('data-q')); return; }
+      if (b.hasAttribute('data-row')) { sel = {}; for (i = 0; i < NC; i++) { sel[+b.getAttribute('data-row') * NC + i] = true; } drawGrid(); return; }
+      if (b.hasAttribute('data-col')) { sel = {}; for (i = 0; i < NR; i++) { sel[i * NC + +b.getAttribute('data-col')] = true; } drawGrid(); return; }
+      var op = b.getAttribute('data-op');
+      if (op === 'revert-map') { st.maps[m.key] = {}; save(); drawGrid(); return; }
+      if (op && !k.length) { readout.textContent = 'Select one or more cells first.'; return; }
+      if (op === 'revert') { k.forEach(function (j) { delete st.maps[m.key][j]; }); }
+      if (op === 'a' || op === 'b') {
+        var x = parseFloat((op === 'a' ? inA : inB).value);
+        if (isNaN(x)) { readout.textContent = 'Enter a value first.'; return; }
+        k.forEach(function (j) {
+          var v = val(m, j);
+          if (m.key === 'spark') { setVal(m, j, op === 'a' ? v + Math.round(x * 2) : Math.round(x * 2)); }
+          else { setVal(m, j, op === 'a' ? v * (1 + x / 100) : x); }
+        });
+      }
+      if (op) { save(); drawGrid(); if (k.length === 1) { say(k[0]); } return; }
+      var dl = b.getAttribute('data-dl');
+      if (dl === 'clear') {
+        if (window.confirm('Revert every map and the speed limit to the stock values?')) {
+          T.maps.forEach(function (mm) { st.maps[mm.key] = {}; }); st.words = {}; save(); drawWords(); drawGrid();
+        }
+      }
+      if (dl === 'csv') { download(csv(), 'text/csv', 'calibration-changes.csv'); }
+      if (dl === 'image') { buildImage(); }
+    });
+
+    function drawWords() {
+      $$('input[data-word]', host).forEach(function (inp) {
+        var a = inp.getAttribute('data-word'), raw = Object.prototype.hasOwnProperty.call(st.words, a) ? st.words[a] : base['w' + a];
+        inp.value = raw / 8;
+        inp.classList.toggle('mod', raw !== base['w' + a]);
+      });
+    }
+    host.addEventListener('change', function (e) {
+      var inp = e.target;
+      if (inp.hasAttribute('data-word')) {
+        var a = inp.getAttribute('data-word'), raw = Math.max(0, Math.min(0xFFFF, Math.round(parseFloat(inp.value) * 8)));
+        if (isNaN(raw) || raw === base['w' + a]) { delete st.words[a]; } else { st.words[a] = raw; }
+        save(); drawWords(); summary();
+      }
+      if (inp.classList.contains('keep-sum')) { st.keepSum = inp.checked; save(); }
+      if (inp.type === 'file' && inp.files[0]) { loadImage(inp.files[0]); }
+    });
+
+    function changes() {             // every byte that differs from the baseline, in address order
+      var out = [];
+      T.maps.forEach(function (m) {
+        Object.keys(st.maps[m.key]).map(Number).forEach(function (i) {
+          var nb = encode(m, st.maps[m.key][i]), ob = encode(m, base[m.key][i]);
+          m.starts.forEach(function (s, copy) {
+            nb.forEach(function (x, j) {
+              var a = s + i * m.width + j, old = image ? image[a] : ob[j];
+              if (old !== x) { out.push({ a: a, o: old, n: x, what: m.title + ' ' + 'AB'[copy] + ' r' + Math.floor(i / NC) + ' c' + (i % NC) }); }
+            });
+          });
+        });
+      });
+      T.words.forEach(function (w) {
+        if (!Object.prototype.hasOwnProperty.call(st.words, w.addr)) { return; }
+        var nb = [(st.words[w.addr] >> 8) & 0xFF, st.words[w.addr] & 0xFF], ob = [(base['w' + w.addr] >> 8) & 0xFF, base['w' + w.addr] & 0xFF];
+        nb.forEach(function (x, j) { var a = w.addr + j, old = image ? image[a] : ob[j]; if (old !== x) { out.push({ a: a, o: old, n: x, what: w.title }); } });
+      });
+      return out.sort(function (x, y) { return x.a - y.a; });
+    }
+    function summary() {
+      var ch = changes(), cells = T.maps.reduce(function (n, m) { return n + Object.keys(st.maps[m.key]).length; }, 0);
+      $('.tune-summary', host).textContent = cells + ' map cell' + (cells === 1 ? '' : 's') + ' and ' + Object.keys(st.words).length +
+        ' limit setting' + (Object.keys(st.words).length === 1 ? '' : 's') + ' changed · ' + ch.length + ' byte' + (ch.length === 1 ? '' : 's') + ' to write';
+      $('[data-dl="image"]', host).disabled = !image;
+    }
+    function csv() {
+      return 'address,stock,new,structure\n' + changes().map(function (c) { return h(c.a) + ',' + h(c.o, 2) + ',' + h(c.n, 2) + ',' + c.what; }).join('\n') + '\n';
+    }
+    function download(data, type, name) {
+      var url = URL.createObjectURL(new Blob([data], { type: type })), a = document.createElement('a');
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    }
+    function setStatus(text, bad) { status.textContent = text; status.classList.toggle('bad', !!bad); }
+    setStatus('No image loaded. Edits are kept in this browser; load the image to write a file.');
+
+    function loadImage(file) {
+      var fr = new FileReader();
+      fr.onload = function () {
+        var b = new Uint8Array(fr.result), id = T.ident, i, j;
+        if (b.length !== T.size) { setStatus(file.name + ': ' + b.length + ' bytes; the PCM image is ' + T.size + ' bytes.', true); return; }
+        for (i = 0; i < id.hex.length / 2; i++) {
+          if (b[id.addr + i] !== parseInt(id.hex.substr(i * 2, 2), 16)) { setStatus(file.name + ': the calibration identifier at ' + h(id.addr) + ' differs; the map addresses belong to calibration 04848703AF.', true); return; }
+        }
+        image = b; imageSum = sum16(b);
+        var notes = [], differ = 0;
+        T.maps.forEach(function (m) {
+          var flat = [];
+          for (j = 0; j < NR * NC; j++) { flat.push(decode(b, m.starts[0] + j * m.width, m)); }
+          for (j = 0; j < NR * NC; j++) {
+            if (m.starts.some(function (s) { return decode(b, s + j * m.width, m) !== flat[j]; })) { notes.push(m.title + ' copies differ; copy A is the starting point'); break; }
+          }
+          flat.forEach(function (v, k) { if (v !== base[m.key][k]) { differ++; } });
+          base[m.key] = flat;
+          Object.keys(st.maps[m.key]).forEach(function (k) { if (st.maps[m.key][k] === flat[k]) { delete st.maps[m.key][k]; } });
+        });
+        T.words.forEach(function (w) { base['w' + w.addr] = (b[w.addr] << 8) | b[w.addr + 1]; if (st.words[w.addr] === base['w' + w.addr]) { delete st.words[w.addr]; } });
+        if (differ) { notes.push(differ + ' map cells differ from the reference image and now count as stock'); }
+        var blank = true;
+        for (i = T.comp[0]; i < T.comp[1]; i++) { if (b[i] !== 0xFF) { blank = false; break; } }
+        if (!blank) { notes.push('the sum area ' + h(T.comp[0]) + '–' + h(T.comp[1] - 1) + ' already holds sum adjustments'); }
+        setStatus(file.name + ' · calibration 04848703AF · sum ' + h(imageSum, 4) + (imageSum === T.sum ? ' (reference)' : '') + (notes.length ? ' · ' + notes.join('; ') : ''));
+        save(); drawWords(); drawGrid();
+      };
+      fr.readAsArrayBuffer(file);
+    }
+    function buildImage() {
+      if (!image) { return; }
+      var out = new Uint8Array(image), ch = changes(), i;
+      ch.forEach(function (c) { out[c.a] = c.n; });
+      var msg = ch.length + ' bytes written';
+      if (st.keepSum) {
+        for (i = T.comp[0]; i < T.comp[1]; i++) { out[i] = 0xFF; }
+        var d = (sum16(out) - imageSum) & 0xFFFF;
+        for (i = T.comp[1] - 1; d > 0 && i >= T.comp[0]; i--) { var take = Math.min(d, out[i]); out[i] -= take; d -= take; }
+        msg += ' · sum ' + h(sum16(out), 4) + ' kept';
+      } else {
+        msg += ' · sum ' + h(sum16(out), 4) + ' (was ' + h(imageSum, 4) + ')';
+      }
+      download(out, 'application/octet-stream', 'VIP_04848703AF_modified.bin');
+      setStatus(msg + '. Program the file into the flash device and keep the original image.');
+    }
+
+    drawWords();
+    drawGrid();
   }
 
   /* ---------- start */
