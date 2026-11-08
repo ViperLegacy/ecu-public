@@ -1,5 +1,5 @@
 {
- "atlasEntries": 360,
+ "atlasEntries": 431,
  "crops": {
   "ac-operation": {
    "page": 487,
@@ -241,6 +241,26 @@
    "printed": "14-28",
    "sha256": "7a8ccf2c4d542928275f012973da7bafe1f50272dadb7bdbfec1422c9d667ee7"
   },
+  "misfire-firing-order": {
+   "page": 655,
+   "printed": "9-10",
+   "sha256": "0a8850adf10def7fbc4c8bc64a89a57488f8b5a1cc916c7a5aac2ab5622b2fec"
+  },
+  "misfire-monitored-systems": {
+   "page": 930,
+   "printed": "25-7",
+   "sha256": "8f4f27620bc3c9bb64638825a4c24adaaf9ca9956bc6a5d9ec71eb0ada894070"
+  },
+  "misfire-p1398": {
+   "page": 930,
+   "printed": "25-7",
+   "sha256": "51ead8f550f795874d98036dacbb3a7c7b202c1dad626de81c2339bda003aa91"
+  },
+  "misfire-p1696": {
+   "page": 927,
+   "printed": "25-4",
+   "sha256": "cc7ac766fa0698304aaca4de12ec19a43da73f40a3f27bd98cbd00b7f287d7c0"
+  },
   "pcm-about-location": {
    "page": 754,
    "printed": "14-37",
@@ -349,8 +369,8 @@
  },
  "missing": [],
  "romSha256": "82c2832024feae3d5427df4baddbaedcc80cdd0958e3e33155f4b78e1c21c2c0",
- "routinesReferenced": 257,
- "sections": 39,
+ "routinesReferenced": 262,
+ "sections": 41,
  "sources": {
   "sections/0-1-about.html": "5d069f1de0cfd94f0bf354ad57f12d1413c3ec533283beca9eb62c959632af63",
   "sections/0-2-identification.html": "62138c22ff63eaa28f97439713efa7392e36183700224cd4f0cca36e7d072e47",
@@ -377,6 +397,7 @@
   "sections/8-2-faults.html": "45e603857a6897e67c2641cb04116f85371cf560035fd194acb30418251f840c",
   "sections/8-3-blink.html": "efa608641fc73c791508cd7afc5c03f68dea5263165cae961ae1c913c7c83d6e",
   "sections/8-4-blink-start.html": "dcb3216d5b811fa1eda4f6d4d85924de0e18be3f35903a52d622852ceb164921",
-  "sections/8-5-fault-snapshot.html": "a68ed79004a82a89c0c824cbd784ccf3a38f7d56485e020a2c0a6bd5a8173212"
+  "sections/8-5-fault-snapshot.html": "c5abd667783be9f06f5db37d330619007abde3db9db79b1d48ae0d56cf026110",
+  "sections/8-6-misfire.html": "1496887bd567ed99c58251aa60419d81710c6e9bb0c5770af8a30ed7cb3c946e"
  }
 }

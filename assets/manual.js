@@ -197,7 +197,7 @@
 
   var FLASH = {
     fuel: ['#C8102E', 'Fuel and starting'], spark: ['#F08A24', 'Spark and ignition'], trans: ['#2A6FBF', 'Transmission'],
-    diag: ['#7E57C2', 'Diagnostics'], sched: ['#1A9E9E', 'Schedules and configuration'], sens: ['#D4B106', 'Sensors and temperature'], idle: ['#B0607E', 'Idle air'],
+    diag: ['#7E57C2', 'Diagnostics'], sched: ['#1A9E9E', 'Schedules and configuration'], sens: ['#D4B106', 'Sensors and temperature'], idle: ['#B0607E', 'Idle air'], misf: ['#3C8D2F', 'Misfire'],
     data: ['#B5B5B5', 'Other data'], code: ['#2E2E2E', 'Program code'], ff: ['#F4F4F2', 'Unused fill (FF)']
   };
   function hex6(n) { return ('00000' + n.toString(16).toUpperCase()).slice(-6); }
@@ -207,7 +207,7 @@
       var best = null, cal = null;
       Object.keys(m).forEach(function (k) {
         if (!best || m[k] > m[best]) { best = k; }
-        if (['fuel', 'spark', 'trans', 'diag', 'sched', 'sens', 'idle'].indexOf(k) >= 0 && (!cal || m[k] > m[cal])) { cal = k; }
+        if (['fuel', 'spark', 'trans', 'diag', 'sched', 'sens', 'idle', 'misf'].indexOf(k) >= 0 && (!cal || m[k] > m[cal])) { cal = k; }
       });
       return cal && m[cal] >= 64 ? cal : best;
     }
