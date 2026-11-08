@@ -3157,6 +3157,23 @@ uint8_t viper_speed_pid_kmh(uint8_t speed)
 <tr><td class="mono">01</td><td>Scan tool session present: cancels the blink display and blocks blink arming (<a class="xref" href="#8-4">8-4</a>). Also set by commands 12 and 14</td></tr>
 </tbody></table>
 
+<h4>Worked example: unlock only</h4>
+<p>To grant security and set nothing else, X carries only bit 10 and the three value bytes are zero. Each value byte is sent twice. The link is at 7812.5 baud when the exchange starts.</p>
+<table class="spec">
+<thead><tr><th>SENT</th><th>RECEIVED</th><th>STATE AFTER</th></tr></thead>
+<tbody>
+<tr><td class="mono">1B</td><td class="mono">1B</td><td>F833D.40 set, F8345 = 1, still 7812.5 baud</td></tr>
+<tr><td class="mono">14</td><td>—</td><td>Matches ROM F5A8; link now 976.6 baud</td></tr>
+<tr><td class="mono">F3 F5 F7</td><td>—</td><td>Match ROM F5A9–F5AB</td></tr>
+<tr><td class="mono">F8</td><td class="mono">F8</td><td>Matches ROM F5AC; last key byte echoed</td></tr>
+<tr><td class="mono">10 10</td><td>—</td><td>X = 10 stored at F8344, then confirmed</td></tr>
+<tr><td class="mono">00 00</td><td>—</td><td>a = 00 stored at F834A, then confirmed</td></tr>
+<tr><td class="mono">00 00</td><td>—</td><td>b = 00 stored at F834B, then confirmed</td></tr>
+<tr><td class="mono">00 00</td><td>—</td><td>c = 00 stored at F834C, then confirmed; <b>F8109 = 10</b>; link back to 7812.5 baud</td></tr>
+</tbody></table>
+<p>F8109 now equals 10, so bit 10 is set and security is granted with no spark or fuel override active. The 13 value and key bytes must arrive inside 0E fast passes of one another or the inter-byte timeout (<a class="xref" href="#8-7:fig-timeout">Fig. 3</a>) resets the session; because the reset leaves bit 10 untouched, a sequence that reaches the final write stays unlocked. From here command 29 (RAM write), command 27 for a protected entry, command 18 and sub-function 23 05 are all accepted. To drive a fixed spark advance instead, set bit 02 in X and put the advance in a; for a fixed fuel pulse width set bits 04 or 08 in X and the width in b:c.</p>
+<p>The firmware never clears bit 10 at run time, so the PCM stays unlocked until it is reset, a command 29 or a further keyed sequence rewrites F8109, or startup clears the RAM page (<a class="xref" href="#1-2">1-2 Startup and Initialization</a>). This whole path is reconstructed from the ROM and its disassembly; it has not been exercised on a vehicle.</p>
+
 <h3>COMMAND SUMMARY</h3>
 <p>The table lists every byte the parser accepts. ARGUMENTS gives the flag byte from ECC2 and the bytes it calls for. Commands 13, 17, 18 and 23 refuse while the engine-event flag F80CE bit 10 is set; the capture interrupt sets it at the first engine event and the event-loss watchdog clears it after events stop (<a class="xref" href="#2-2">2-2 Loss of Engine Events</a>). In the table this condition is "engine stopped".</p>
 <table class="spec span">
