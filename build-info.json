@@ -136,6 +136,11 @@
    "printed": "25-5",
    "sha256": "fd96886917f8e1abb78334eee416b8395af2411d5d0573f030567a059db81fee"
   },
+  "dtc-internal-controller": {
+   "page": 926,
+   "printed": "25-3",
+   "sha256": "2defacd6688c481d477fe2a1570f1833ac2f0c099822eafa4f7cc331464a5bfb"
+  },
   "dtc-no-cam-signal": {
    "page": 926,
    "printed": "25-3",
@@ -369,8 +374,8 @@
  },
  "missing": [],
  "romSha256": "82c2832024feae3d5427df4baddbaedcc80cdd0958e3e33155f4b78e1c21c2c0",
- "routinesReferenced": 295,
- "sections": 44,
+ "routinesReferenced": 297,
+ "sections": 45,
  "sources": {
   "sections/0-1-about.html": "5d069f1de0cfd94f0bf354ad57f12d1413c3ec533283beca9eb62c959632af63",
   "sections/0-2-identification.html": "b18d310a9935b1f0d876deb42446aae299cfd73dfadbbea9a9233468dca3eb25",
@@ -400,6 +405,7 @@
   "sections/8-5-fault-snapshot.html": "57e4501adeeecd273e366f15e3630e6dbee1b21bd02767b28b1600a5d529c1bc",
   "sections/8-6-misfire.html": "1496887bd567ed99c58251aa60419d81710c6e9bb0c5770af8a30ed7cb3c946e",
   "sections/8-7-scan-tool.html": "b0a3dbc1c6ecc2cb67658df95e8160c1d045a7fedf02e2b04785e1067f2c6e4c",
-  "sections/8-8-obd.html": "0e2ee1ed5fc8d50384e156d6cb892be59029346bbe1474e6ed2ac6a57b95817e"
+  "sections/8-8-obd.html": "0e2ee1ed5fc8d50384e156d6cb892be59029346bbe1474e6ed2ac6a57b95817e",
+  "sections/8-9-rom-checksum.html": "7ae01f8857a0e1c9465d7561d3dec80d7a88705d6a050add916f01831ca37701"
  }
 }
