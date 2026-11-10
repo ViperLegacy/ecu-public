@@ -142,6 +142,7 @@
     $$('input.filter', page).forEach(filter);
     $$('[data-widget="flash-map"]', page).forEach(flashMap);
     $$('[data-widget="tuning"]', page).forEach(tuning);
+    $$('[data-widget="image-tools"]', page).forEach(imageTools);
   }
 
   function heat(table) {
@@ -538,6 +539,174 @@
 
     drawWords();
     drawGrid();
+  }
+
+  /* ---------- image compare and search */
+  function imageTools(host) {
+    var R = D.widgets.imagetools, CAP = 200;
+    function h(n, w) { return ('0000000' + n.toString(16).toUpperCase()).slice(-(w || 6)); }
+    var T = new Uint32Array(256);
+    for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) { c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; } T[n] = c >>> 0; }
+    function crc(b, spans) {
+      var x = 0xFFFFFFFF;
+      spans.forEach(function (s) { for (var i = s[0]; i < s[1]; i++) { x = T[(x ^ b[i]) & 0xFF] ^ (x >>> 8); } });
+      return (x ^ 0xFFFFFFFF) >>> 0;
+    }
+    function sum16(b) { var t = 0; for (var i = 0; i < b.length; i++) { t = (t + b[i]) & 0xFFFF; } return t; }
+    var spans = [];
+    R.routines.forEach(function (r, i) { r[2].forEach(function (s) { spans.push([s[0], s[1], i]); }); });
+    function holders(a, b) {   // structures and routines that overlap [a, b)
+      var out = [], seen = {};
+      R.structures.forEach(function (s) { if (s[3] < b && s[4] > a) { out.push({ s: s }); } });
+      spans.forEach(function (s) { if (s[0] < b && s[1] > a && !seen[s[2]]) { seen[s[2]] = 1; out.push({ r: R.routines[s[2]] }); } });
+      return out;
+    }
+    function slink(s) { return '<a href="#' + s[2] + ':fig-atlas-' + s[0] + '">' + esc(s[1]) + '</a>'; }
+    function rlink(r) { return '<a class="routine" href="#10-3:r-' + r[0] + '">' + esc(r[1]) + '</a> <span class="mono">' + r[0] + '</span>'; }
+    function whereHtml(a, b) {
+      var w = holders(a, b);
+      return w.length ? w.map(function (x) { return x.s ? slink(x.s) : rlink(x.r); }).join('<br>') : '<span class="muted">No listed structure or routine</span>';
+    }
+    function whereText(a, b) { return holders(a, b).map(function (x) { return x.s ? x.s[1] : x.r[1] + ' ' + x.r[0]; }).join('; '); }
+    function bytes(b, a, n) { var out = []; for (var i = a; i < Math.min(a + n, b.length); i++) { out.push(h(b[i], 2)); } return out.join(' '); }
+    function more(total) { return total > CAP ? '<p class="tune-summary">The first ' + CAP + ' of ' + total.toLocaleString() + ' are shown.</p>' : ''; }
+
+    host.innerHTML = '<div class="tune itools">' +
+      '<div class="tune-panels">' + ['a', 'b'].map(function (k) {
+        return '<section><span class="k">' + (k === 'a' ? 'IMAGE A' : 'IMAGE B · OPTIONAL') + '</span>' +
+          '<label class="tune-file"><span>' + (k === 'a' ? 'Load the image to examine' : 'Load a second image to compare with A') + ' (' + (R.size / 1024) + ' KiB)</span>' +
+          '<input type="file" data-img="' + k + '" accept=".bin,.ori,.rom,application/octet-stream"></label>' +
+          '<p class="tune-status" data-status="' + k + '" aria-live="polite">No image loaded.</p></section>';
+      }).join('') + '</div>' +
+      '<section class="itools-part"><span class="k">IMAGE A AGAINST THE REFERENCE IMAGE</span><div data-out="ref"><p class="tune-summary">Load image A.</p></div></section>' +
+      '<section class="itools-part"><span class="k">IMAGE A AGAINST IMAGE B</span><div data-out="ab"><p class="tune-summary">Load images A and B.</p></div></section>' +
+      '<section class="itools-part"><span class="k">SEARCH IMAGE A</span>' +
+      '<form class="itools-q"><select aria-label="Search for"><option value="hex">Hex bytes</option><option value="text">Text</option></select>' +
+      '<input type="search" placeholder="37 B5 ?? 00" aria-label="Search pattern" spellcheck="false"><button type="submit">FIND</button></form>' +
+      '<div data-out="find"><p class="tune-summary">Hex: pairs of digits, spaces optional, ?? for any byte. Text: matched byte for byte, case sensitive.</p></div></section>' +
+      '</div>';
+    var img = { a: null, b: null }, out = {};
+    $$('[data-out]', host).forEach(function (e) { out[e.getAttribute('data-out')] = e; });
+    function status(k, text, bad) { var e = $('[data-status="' + k + '"]', host); e.textContent = text; e.classList.toggle('bad', !!bad); }
+
+    function load(k, file) {
+      var fr = new FileReader();
+      fr.onload = function () {
+        var b = new Uint8Array(fr.result);
+        if (b.length !== R.size) { img[k] = null; status(k, file.name + ': ' + b.length.toLocaleString() + ' bytes; a PCM image is ' + R.size.toLocaleString() + ' bytes.', true); render(); return; }
+        img[k] = { b: b, name: file.name };
+        var id = R.ident, same = true, i;
+        for (i = 0; i < id.hex.length / 2; i++) { if (b[id.addr + i] !== parseInt(id.hex.substr(i * 2, 2), 16)) { same = false; break; } }
+        var s = sum16(b), text = file.name + ' · sum ' + h(s, 4) + (s === R.sum ? ' (reference)' : '') + ' · ' +
+          (same ? 'calibration 04848703AF' : 'a different calibration identifier at ' + h(id.addr) + '; the listed addresses belong to 04848703AF');
+        status(k, text, !same);
+        if (window.crypto && crypto.subtle) {
+          crypto.subtle.digest('SHA-256', b).then(function (dg) {
+            var hex = Array.prototype.map.call(new Uint8Array(dg), function (x) { return h(x, 2); }).join('').toLowerCase();
+            if (img[k] && img[k].b === b) { status(k, text + ' · ' + (hex === R.sha ? 'identical to the reference image' : 'SHA-256 ' + hex), !same); }
+          }, function () {});
+        }
+        render();
+      };
+      fr.readAsArrayBuffer(file);
+    }
+
+    function renderRef() {
+      var A = img.a;
+      if (!A) { out.ref.innerHTML = '<p class="tune-summary">Load image A.</p>'; return; }
+      var b = A.b, size = R.blockSize, blocks = 0, i;
+      for (i = 0; i < R.blocks.length; i++) { if (crc(b, [[i * size, (i + 1) * size]]) !== R.blocks[i]) { blocks++; } }
+      if (!blocks) { out.ref.innerHTML = '<p class="tune-summary">Image A matches the reference image byte for byte.</p>'; return; }
+      var st = R.structures.filter(function (s) { return crc(b, [[s[3], s[4]]]) !== s[5]; });
+      var rt = R.routines.filter(function (r) { return crc(b, r[2]) !== r[3]; });
+      var html = '<p class="tune-summary">' + blocks + ' of ' + R.blocks.length + ' blocks of 1 KiB, ' + st.length + ' of ' + R.structures.length +
+        ' calibration structures and ' + rt.length + ' of ' + R.routines.length + ' routines differ from the reference image.</p>';
+      if (st.length) {
+        html += '<table class="spec"><thead><tr><th>CALIBRATION STRUCTURE</th><th>ROM</th></tr></thead><tbody>' +
+          st.slice(0, CAP).map(function (s) { return '<tr><td>' + slink(s) + '</td><td class="mono">' + h(s[3]) + '–' + h(s[4] - 1) + '</td></tr>'; }).join('') +
+          '</tbody></table>' + more(st.length);
+      }
+      if (rt.length) {
+        html += '<table class="spec"><thead><tr><th>ROUTINE</th><th class="num">BYTES</th></tr></thead><tbody>' +
+          rt.slice(0, CAP).map(function (r) { return '<tr><td>' + rlink(r) + '</td><td class="num">' + r[2].reduce(function (t, s) { return t + s[1] - s[0]; }, 0) + '</td></tr>'; }).join('') +
+          '</tbody></table>' + more(rt.length);
+      }
+      if (!st.length && !rt.length) { html += '<p class="tune-summary">The changes lie outside the listed structures and routines. Load the reference image as image B to see them.</p>'; }
+      out.ref.innerHTML = html;
+    }
+
+    var runs = [];
+    function renderAB() {
+      runs = [];
+      if (!img.a || !img.b) { out.ab.innerHTML = '<p class="tune-summary">Load images A and B.</p>'; return; }
+      var a = img.a.b, b = img.b.b, i = 0, count = 0;
+      while (i < a.length) {
+        if (a[i] === b[i]) { i++; continue; }
+        var s = i;
+        while (i < a.length && a[i] !== b[i]) { i++; }
+        runs.push([s, i]); count += i - s;
+      }
+      if (!runs.length) { out.ab.innerHTML = '<p class="tune-summary">Images A and B are identical.</p>'; return; }
+      out.ab.innerHTML = '<p class="tune-summary">' + count.toLocaleString() + ' bytes differ, in ' + runs.length.toLocaleString() + ' runs.</p>' +
+        '<div class="tune-quick"><button type="button" data-dl="ab">DOWNLOAD CHANGE LIST</button></div>' +
+        '<table class="spec"><thead><tr><th>ROM</th><th class="num">BYTES</th><th>A</th><th>B</th><th>IN</th></tr></thead><tbody>' +
+        runs.slice(0, CAP).map(function (r) {
+          var n = r[1] - r[0], cut = n > 8 ? ' …' : '';
+          return '<tr><td class="mono">' + h(r[0]) + (n > 1 ? '–' + h(r[1] - 1) : '') + '</td><td class="num">' + n + '</td>' +
+            '<td class="mono">' + bytes(a, r[0], Math.min(n, 8)) + cut + '</td><td class="mono">' + bytes(b, r[0], Math.min(n, 8)) + cut + '</td>' +
+            '<td>' + whereHtml(r[0], r[1]) + '</td></tr>';
+        }).join('') + '</tbody></table>' + more(runs.length);
+    }
+    function csvAB() {
+      var a = img.a.b, b = img.b.b, rows = ['address,a,b,in'];
+      runs.forEach(function (r) {
+        var w = '"' + whereText(r[0], r[1]).replace(/"/g, '""') + '"';
+        for (var i = r[0]; i < r[1]; i++) { rows.push(h(i) + ',' + h(a[i], 2) + ',' + h(b[i], 2) + ',' + w); }
+      });
+      var url = URL.createObjectURL(new Blob([rows.join('\n') + '\n'], { type: 'text/csv' })), el = document.createElement('a');
+      el.href = url; el.download = 'image-differences.csv'; document.body.appendChild(el); el.click(); el.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    }
+
+    function pattern(mode, text) {
+      var p = [], i;
+      if (mode === 'text') {
+        for (i = 0; i < text.length; i++) { var c = text.charCodeAt(i); if (c > 0xFF) { return 'Text search covers single-byte characters only.'; } p.push(c); }
+        return p.length ? p : 'Enter the text to find.';
+      }
+      var t = text.replace(/0x/gi, '').replace(/[\s,]+/g, '');
+      if (!t) { return 'Enter the bytes to find.'; }
+      if (t.length % 2 || !/^([0-9a-fA-F]{2}|\?\?)+$/.test(t)) { return 'Write each byte as two hex digits, or ?? for any byte.'; }
+      for (i = 0; i < t.length; i += 2) { p.push(t.substr(i, 2) === '??' ? -1 : parseInt(t.substr(i, 2), 16)); }
+      if (p.every(function (x) { return x < 0; })) { return 'Give at least one byte value.'; }
+      return p;
+    }
+    function find(mode, text) {
+      if (!img.a) { out.find.innerHTML = '<p class="tune-summary bad">Load image A first.</p>'; return; }
+      var p = pattern(mode, text);
+      if (typeof p === 'string') { out.find.innerHTML = '<p class="tune-summary bad">' + esc(p) + '</p>'; return; }
+      var b = img.a.b, m = p.length, hits = [], total = 0, i, j;
+      for (i = 0; i + m <= b.length; i++) {
+        for (j = 0; j < m; j++) { if (p[j] >= 0 && b[i + j] !== p[j]) { break; } }
+        if (j === m) { total++; if (hits.length < CAP) { hits.push(i); } }
+      }
+      if (!total) { out.find.innerHTML = '<p class="tune-summary">No match in ' + esc(img.a.name) + '.</p>'; return; }
+      out.find.innerHTML = '<p class="tune-summary">' + total.toLocaleString() + ' match' + (total === 1 ? '' : 'es') + ' in ' + esc(img.a.name) + '.</p>' +
+        '<table class="spec"><thead><tr><th>ROM</th><th>BYTES</th><th>IN</th></tr></thead><tbody>' +
+        hits.map(function (a) {
+          return '<tr><td class="mono">' + h(a) + '</td><td class="mono">' + bytes(b, a, Math.min(Math.max(m, 8), 16)) + '</td><td>' + whereHtml(a, a + m) + '</td></tr>';
+        }).join('') + '</tbody></table>' + more(total);
+    }
+
+    function render() { renderRef(); renderAB(); }
+    host.addEventListener('change', function (e) {
+      var k = e.target.getAttribute('data-img');
+      if (k && e.target.files[0]) { load(k, e.target.files[0]); }
+    });
+    host.addEventListener('click', function (e) { if (e.target.closest('[data-dl="ab"]') && runs.length) { csvAB(); } });
+    var form = $('.itools-q', host), mode = $('select', form), q = $('input', form);
+    mode.addEventListener('change', function () { q.placeholder = mode.value === 'hex' ? '37 B5 ?? 00' : 'CHRYSLER'; });
+    form.addEventListener('submit', function (e) { e.preventDefault(); find(mode.value, q.value); });
   }
 
   /* ---------- start */
